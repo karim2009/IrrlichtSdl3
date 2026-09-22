@@ -6,13 +6,13 @@
 #define __IRR_COMPILE_CONFIG_H_INCLUDED__
 
 //! Irrlicht SDK Version
-#define IRRLICHT_VERSION_MAJOR 1
-#define IRRLICHT_VERSION_MINOR 9
+#define IRRLICHT_VERSION_MAJOR 2
+#define IRRLICHT_VERSION_MINOR 0
 #define IRRLICHT_VERSION_REVISION 0
 // This flag will be defined only in SVN, the official release code will have
 // it undefined
 #define IRRLICHT_VERSION_SVN alpha
-#define IRRLICHT_SDK_VERSION "1.9.0"
+#define IRRLICHT_SDK_VERSION "2.0.0"
 
 #include <stdio.h> // TODO: Although included elsewhere this is required at least for mingw
 
@@ -42,7 +42,7 @@
 
 
 //! Uncomment this line to compile with the SDL device
-//#define _IRR_COMPILE_WITH_SDL_DEVICE_
+#define _IRR_COMPILE_WITH_SDL_DEVICE_
 #ifdef NO_IRR_COMPILE_WITH_SDL_DEVICE_
 #undef _IRR_COMPILE_WITH_SDL_DEVICE_
 #endif
@@ -73,7 +73,7 @@
 	#define _IRR_WINDOWS_API_
 	//#define _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 	#undef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-	//#define _IRR_COMPILE_WITH_SDL_DEVICE_
+	#define _IRR_COMPILE_WITH_SDL_DEVICE_
 
 	#include <xtl.h>
 #endif

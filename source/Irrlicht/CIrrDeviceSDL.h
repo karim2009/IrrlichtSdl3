@@ -1,8 +1,6 @@
 // Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
-// This device code is based on the original SDL device implementation
-// contributed by Shane Parker (sirshane).
 
 #ifndef __C_IRR_DEVICE_SDL_H_INCLUDED__
 #define __C_IRR_DEVICE_SDL_H_INCLUDED__
@@ -16,8 +14,7 @@
 #include "IImagePresenter.h"
 #include "ICursorControl.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL3/SDL.h>
 
 namespace irr
 {
@@ -92,72 +89,68 @@ namespace irr
 		//! Get the device type
 		virtual E_DEVICE_TYPE getType() const _IRR_OVERRIDE_
 		{
-				return EIDT_SDL;
+			return EIDT_SDL;
 		}
 
-		//! Implementation of the linux cursor control
+		SDL_Window* getSDLWindow() const { return Window; }
+		SDL_GLContext getSDLGLContext() const { return Context; }
+
+		//! Implementation of the cursor control
 		class CCursorControl : public gui::ICursorControl
 		{
 		public:
 
 			CCursorControl(CIrrDeviceSDL* dev)
-				: Device(dev), IsVisible(true)
+			: Device(dev), IsVisible(true)
 			{
 			}
 
-			//! Changes the visible state of the mouse cursor.
 			virtual void setVisible(bool visible) _IRR_OVERRIDE_
 			{
 				IsVisible = visible;
 				if ( visible )
-					SDL_ShowCursor( SDL_ENABLE );
+					SDL_ShowCursor();
 				else
-					SDL_ShowCursor( SDL_DISABLE );
+					SDL_HideCursor();
 			}
 
-			//! Returns if the cursor is currently visible.
 			virtual bool isVisible() const _IRR_OVERRIDE_
 			{
 				return IsVisible;
 			}
 
-			//! Sets the new position of the cursor.
 			virtual void setPosition(const core::position2d<f32> &pos) _IRR_OVERRIDE_
 			{
 				setPosition(pos.X, pos.Y);
 			}
 
-			//! Sets the new position of the cursor.
 			virtual void setPosition(f32 x, f32 y) _IRR_OVERRIDE_
 			{
 				setPosition((s32)(x*Device->Width), (s32)(y*Device->Height));
 			}
 
-			//! Sets the new position of the cursor.
 			virtual void setPosition(const core::position2d<s32> &pos) _IRR_OVERRIDE_
 			{
 				setPosition(pos.X, pos.Y);
 			}
 
-			//! Sets the new position of the cursor.
 			virtual void setPosition(s32 x, s32 y) _IRR_OVERRIDE_
 			{
-				SDL_WarpMouse( x, y );
+				if (Device->Window)
+					SDL_WarpMouseInWindow(Device->Window, (float)x, (float)y);
 			}
 
-			//! Returns the current position of the mouse cursor.
 			virtual const core::position2d<s32>& getPosition() _IRR_OVERRIDE_
 			{
 				updateCursorPos();
 				return CursorPos;
 			}
 
-			//! Returns the current position of the mouse cursor.
 			virtual core::position2d<f32> getRelativePosition() _IRR_OVERRIDE_
 			{
 				updateCursorPos();
 				return core::position2d<f32>(CursorPos.X / (f32)Device->Width,
-					CursorPos.Y / (f32)Device->Height);
+											 CursorPos.Y / (f32)Device->Height);
 			}
 
 			virtual void setReferenceRect(core::rect<s32>* rect=0) _IRR_OVERRIDE_
@@ -188,18 +181,17 @@ namespace irr
 
 	private:
 
-		//! create the driver
 		void createDriver();
-
 		bool createWindow();
-
 		void createKeyMap();
 
-		SDL_Surface* Screen;
-		int SDL_Flags;
-#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
+		SDL_Window* Window;
+		SDL_GLContext Context;
+		Uint32 WindowFlags;
+
+		#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
 		core::array<SDL_Joystick*> Joysticks;
-#endif
+		#endif
 
 		s32 MouseX, MouseY;
 		u32 MouseButtonStates;
@@ -213,26 +205,24 @@ namespace irr
 		struct SKeyMap
 		{
 			SKeyMap() {}
-			SKeyMap(s32 x11, s32 win32)
-				: SDLKey(x11), Win32Key(win32)
+			SKeyMap(SDL_Keycode sdlKey, s32 win32Key)
+			: SDLKey(sdlKey), Win32Key(win32Key)
 			{
 			}
 
-			s32 SDLKey;
+			SDL_Keycode SDLKey;
 			s32 Win32Key;
 
 			bool operator<(const SKeyMap& o) const
 			{
-				return SDLKey<o.SDLKey;
+				return SDLKey < o.SDLKey;
 			}
 		};
 
 		core::array<SKeyMap> KeyMap;
-		SDL_SysWMinfo Info;
 	};
 
 } // end namespace irr
 
 #endif // _IRR_COMPILE_WITH_SDL_DEVICE_
 #endif // __C_IRR_DEVICE_SDL_H_INCLUDED__
-
