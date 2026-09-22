@@ -1,0 +1,25 @@
+
+sudo apt update && sudo apt install -y \
+    build-essential \
+    cmake \
+    pkg-config \
+    libsdl3-dev \
+    libassimp-dev \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    libx11-dev \
+    libxxf86vm-dev \
+    libxext-dev \
+    libxcursor-dev \
+    libxrandr-dev \
+    libxi-dev
+
+git clone https://github.com/zaki/irrlicht.git Irrlicht19
+cd Irrlicht19
+
+cd chemin/vers/irrlicht/source/Irrlicht
+
+make clean
+make -j$(nproc)
+
+

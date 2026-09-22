@@ -1,0 +1,18 @@
+# Copie du header dans include/
+cp /home/chris/Documents/3dEngine/NewIrrlichctSdl3/Plugins/InitScene/InitScene.h /home/chris/Documents/3dEngine/IrrlichtSdl3/include/
+
+# Copie du cpp dans source/Irrlicht/
+cp /home/chris/Documents/3dEngine/NewIrrlichctSdl3/Plugins/InitScene/InitScene.cpp /home/chris/Documents/3dEngine/IrrlichtSdl3/source/Irrlicht/
+
+
+
+sed -i 's/IRRMESHLOADER = /IRRMESHLOADER = InitScene.o /' /home/chris/Documents/3dEngine/IrrlichtSdl3/source/Irrlicht/Makefile
+
+
+# verifier
+
+grep -E "EXTRAOBJ|IRRMESHLOADER" Makefile
+
+# Compiler
+
+make clean && make -j$(nproc)
