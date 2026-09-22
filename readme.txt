@@ -1,235 +1,136 @@
-==========================================================================
-The Irrlicht Engine SDK version 1.9
-==========================================================================
+Irrlicht Engine 2.0.0 ? Vortex3D Edition (SDL3 + OpenGL + Wayland)
+Moteur 3D C++17 modernisé pour Linux/Ubuntu. Cette version 2.0.0 remplace le sous-système d'affichage legacy d'Irrlicht par une intégration SDL3 compatible Wayland / X11, embarque des shaders GLSL personnalisés et intègre nativement la suite de plugins Vortex3D dans la bibliothèque statique libIrrlicht.a.
 
-  Welcome to the Irrlicht Engine SDK.
+1. Nouveautés de la Version 2.0.0
+Backend SDL3 & Wayland/X11 : Gestion moderne du contexte de fenêtrage et des entrées via SDL3.
 
-  Content of this file:
+Support binaire Urho3D / Turso3D (.mdl) : Intégration du parser natif LoadMdl (format UMDL).
 
-  1. Directory Structure Overview
-  2. How To Start
-  3. Requirements
-  4. Release Notes
-  5. License
-  6. Contact
+Support Assimp universel : Importation à la volée de maillages statiques et animés (.gltf, .fbx, .obj, etc.) via LoadModel et LoadActor.
 
+Modules Vortex3D intégrés : Compilés directement au c?ur de libIrrlicht.a (InitScene, Camera, Shaders, LoadActor, LoadMdl, LoadModel).
 
-==========================================================================
-1. Directory Structure Overview
-==========================================================================
+Tooling inclus : Outil autonome vortex-mdl-exporter pour convertir n'importe quel format Assimp en fichier binaire .mdl.
 
-  You will find some directories after uncompressing the archive of the
-  SDK. These are:
+2. Structure des Modules Intégrés (libIrrlicht.a)
+Les headers sont situés dans include/ et les implémentations dans source/Irrlicht/ :
 
-  \bin         The compiled library Irrlicht.DLL and some compiled demo
-               and example applications, just start them to see the
-               Irrlicht Engine in action. Windows only.
-  \doc         Documentation of the Irrlicht Engine.
-  \examples    Examples and tutorials showing how to use the engine with
-               C++.
-  \include     Header files to include when programming with the engine.
-  \lib         Libs to link with your programs when using the engine.
-  \media       Graphics and sound resources for the demo applications and
-               examples.
-  \source      The source code of the Irrlicht Engine. This code is
-               not needed to develop applications with the engine,
-               but it is included to enable recompilation and
-               debugging, if necessary.
-  \tools       Useful tools (with sourcecode) for the engine.
+InitScene : Initialisation du device SDL3/Wayland, contrôle du frame buffer et de la couleur de fond (SetBackgroundColor, BeginFrame).
 
+Camera : Caméra orbitale configurable avec ciblage et gestion du curseur.
 
+LoadMdl : Parser/loader haute performance pour les modèles binaire statiques .mdl d'Urho3D.
 
-==========================================================================
-2. How to start
-==========================================================================
+LoadActor : Wrapper de chargement et gestion des acteurs animés/squelettiques (GLTF/FBX) via Assimp.
 
-  To see the engine in action in Windows, just go to the \bin\Win32-VisualStudio
-  directory, and start some applications. There should also be an
-  application named Demo.exe which should show the most
-  interesting features of Irrlicht.
+LoadModel : Loader générique de maillages via Assimp.
 
-  To start developing own applications and games with the engine take
-  a look at the 01.HelloWorld example in the \examples directory.
-  There is also a .html file with a tutorial which should be
-  easily comprehensible.
+Shaders : Gestionnaire de pipelines et effets GLSL (Fresnel, effet glacé, etc.).
 
-  The Irrlicht Engine is a static lib under linux. A precompiled version can be
-  generated from the sources using the Makefile in source/Irrlicht. Run 'make' in 
-  that subfolder. After this you should be able to 'make' all
-  example applications in /examples by calling the buildAllExamples script. You 
-  can run the examples then from the bin folder.
+3. Prérequis
+Système d'exploitation : Linux (Ubuntu 22.04 / 24.04 / Kubuntu)
 
-  It is also possible to use Irrlicht as shared object
-  (libIrrlicht.so.versionNumber). Use the proper makefile target for this by
-  running 'make sharedlib' in the source folder. See the Makefile for details.
+Compilateur : GCC ou Clang compatible C++17
 
-  For OSX you can find an XCode project file in source/Irrlicht/MacOSX. This will
-  build the libIrrlicht.a library necessary to create the apps.
+Bibliothèques requises :
 
-==========================================================================
-3. Requirements
-==========================================================================
+SDL3
 
-  You can use one of the following compilers/IDEs to develop applications
-  with Irrlicht or recompile the engine. However, other compilers/IDEs may
-  work as well, we simply didn't test them.
+OpenGL / GLX
 
-  * gcc 4.x
-  * Visual Studio 2010(10.0)-2013(12.0)
-  * Code::Blocks (& gcc or visual studio toolkit)
-  
-  If you ever want to (re)compile the engine yourself (which means you don't
-  want to use the precompiled version) you need the following:
+libassimp-dev
 
-  * Windows:
-	* Needed: PlatformSDK (which usually comes with all IDEs, download
-			it separately for MSVC Express 2005)
-	* Optional: DirectX SDK, for D3D9 support
-	* Optional: DirectX SDK prior to May 2006, for D3D8 support
+libX11-dev / libXxf86vm-dev
 
-  * Linux:
-	* Needed: XServer with include files
-	* Optional: OpenGL headers and libraries (libGL.so) for OpenGL support
-		GLX +
-		XF86VidMode [package x11proto-xf86vidmode-dev] or XRandr
-		(X11 support libraries, the latter two for fullscreen mode)
+CMake (>= 3.16) & Make
 
-  * OSX:
-	* Needed: XCode and Cocoa framework
-	* Needed: OpenGL headers and libraries
+4. Compilation de la Bibliothèque libIrrlicht.a
+Pour recompiler la bibliothèque statique d'Irrlicht avec tous les modules embarqués :
 
-==========================================================================
-4. Release Notes
-==========================================================================
+Bash
+cd source/Irrlicht
 
-  Informations about changes in this new version of the engine can be
-  found in changes.txt.
+# Nettoyage des objets précédents
+make clean
 
-  Please note that the textures, 3D models and levels are copyright
-  by their authors and not covered by the Irrlicht engine license.
+# Compilation multithreadée de libIrrlicht.a
+make -j$(nproc)
+La bibliothèque générée sera disponible sous source/Irrlicht/libIrrlicht.a.
 
-==========================================================================
-5. License
-==========================================================================
+5. Compilation de l'Application & des Outils (CMake)
+Le projet principal Vortex3D utilise CMake pour lier libIrrlicht.a et générer les exécutables.
 
-  The license of the Irrlicht Engine is based on the zlib/libpng license.
-  Even though this license does not require you to mention that you are
-  using the Irrlicht Engine in your product, an acknowledgement
-  would be highly appreciated.
+Bash
+cd /chemin/vers/votre_projet
+mkdir -p build && cd build
 
-  Please note that the Irrlicht Engine is based in part on the work of
-  the Independent JPEG Group, the zlib, and libpng. This means that if you use
-  the Irrlicht Engine in your product, you must acknowledge somewhere
-  in your documentation that you've used the IJG code and libpng. It would
-  also be nice to mention that you use the Irrlicht Engine and the zlib.
-  See the README files in the jpeglib and the zlib for
-  further informations.
+# Génération des fichiers Makefiles
+cmake ..
 
+# Compilation de l'application principale
+make App
 
-  The Irrlicht Engine License
-  ===========================
+# Compilation de l'outil d'exportation MDL
+make vortex-mdl-exporter
+6. Utilisation de l'Outil vortex-mdl-exporter
+Cet outil convertit n'importe quel modèle 3D (.obj, .fbx, .gltf) en modèle binaire .mdl optimisé pour le moteur :
 
-  Copyright (C) 2002-2012 Nikolaus Gebhardt
+Bash
+./vortex-mdl-exporter /chemin/vers/mon_modele.obj /chemin/vers/Media/Models/Cube.mdl
+7. Exemple de Code (main.cpp)
+Voici comment initialiser le moteur et afficher un modèle statique .mdl et un acteur .gltf :
 
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
+C++
+#include "InitScene.h"
+#include "Camera.h"
+#include "LoadMdl.h"
+#include "LoadActor.h"
+#include "Shaders.h"
 
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
+using namespace irr;
 
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgement in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be clearly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
+int main() {
+    // 1. Initialisation du device SDL3 (Wayland / X11)
+    IrrlichtDevice* device = Vortex3D::InitScene(1024, 768, "Vortex3D Engine 2.0.0", false);
+    if (!device) return 1;
 
+    video::IVideoDriver* driver = device->getVideoDriver();
+    scene::ISceneManager* smgr = device->getSceneManager();
 
-==========================================================================
-6. Contact
-==========================================================================
+    Vortex3D::SetBackgroundColor(255, 100, 101, 140);
 
-  If you have problems, questions or suggestions, please visit the
-  official homepage of the Irrlicht Engine:
+    // 2. Configuration de la caméra orbitale
+    Vortex3D::Camera mainCamera(device);
+    mainCamera.SetCameraLook(0.0f, 1.0f, 0.0f);
+    mainCamera.SetCamera(0.0f, 2.0f, -5.0f);
+    mainCamera.SetOrbitalCamera(true);
 
-  http://irrlicht.sourceforge.net
+    // 3. Modèle binaire .mdl (Chargement synchrone)
+    Vortex3D::LoadMdl* staticMdl = new Vortex3D::LoadMdl(smgr, driver);
+    if (staticMdl->Load("Media/Models/Cube.mdl")) {
+        staticMdl->LoadTexture("Media/Models/Mushroom.dds");
+        staticMdl->SetPosition(-1.5f, 0.0f, 0.0f);
+    }
 
-  You will find forums, bugtrackers, patches, tutorials, and other stuff
-  which will help you out.
+    // 4. Modèle d'Acteur Assimp (.gltf)
+    Vortex3D::LoadActor* alienActor = new Vortex3D::LoadActor(smgr, driver);
+    if (alienActor->Load("Media/Models/Alien.gltf")) {
+        alienActor->LoadTexture("Media/Models/Atlas_Monsters.png");
+        alienActor->SetPosition(1.5f, 0.0f, 0.0f);
+    }
 
-  If want to contact the team of the engine, please send an email to
-  Nikolaus Gebhardt:
+    // 5. Boucle principale de rendu
+    while (device->run()) {
+        Vortex3D::BeginFrame(driver);
+        smgr->drawAll();
+        driver->endScene();
+    }
 
-  irrlicht@users.sourceforge.net
+    // Nettoyage
+    delete staticMdl;
+    delete alienActor;
+    smgr->clear();
+    device->drop();
 
-  Please also not that parts of the engine have been written or contributed
-  by other people. Especially: (There are probably more people, sorry if I forgot one.
-  See http://irrlicht.sourceforge.net/author.html for more informations)
-
-  Christian Stehno (hybrid)   Contribution Coordinator/Developer
-  Michael Zeilfelder (cutealien) Developer
-  Patryk Nadrowski (Nadro)    Developer  
-  Yoran Bosman (Yoran)        Webserver administrator
-  Gareth Davidson (bitplane)  Developer/ Forum admin
-  Thomas Alten (burningwater) Wrote the burningsvideo software rasterizer
-  Luke P. Hoschke (luke)      Wrote the b3d loader, the new animation system, VBOs and other things
-  Colin MacDonald (rogerborg) All hands person
-  Ahmed Hilali (blindside)    The shader and advanced effects man
-  Dean Wadsworth (varmint)    OSX port maintainer and game developer
-  Alvaro F. Celis (afecelis)  Lots of work in the community, for example video tutorials about Irrlicht, forum admin
-  John Goewert (Saigumi)      Wrote some tutorials for the Irrlicht Engine and doing admin stuff
-  Jam                         Takes care of moderating the forums and keeps them clean from those evil spammers.
-
-  Many others (this list hasn't been updated in a while, but they are often mentioned in changes.txt)
-  Etienne Petitjean wrote the MacPort of the engine
-  Mark Jeacocke	Wrote lots of helpful comments and ideas in the forums and per email.
-  Julio Gorgé	Created the 'Unofficial DirectX 9.0 Driver for the Irrlicht Engine'
-  Andy Spurgeon	Wrote the Dev-Cpp tutorial.
-  André Simon	Wrote the Codewarrior tutorial.
-  KnightToFlight	Created the unoffical terrain renderer addon for the Irrlicht Engine.
-  Jon Pry	Wrote the code to load compressed TGA files.
-  Matthew Couch	Wrote the tokamak integration tutorial.
-  Max Winkel	Wrote the splitscreen tutorial.
-  Gorgon Zola	Wrote the ODE integration tutorial.
-  Dean P. Macri	Sent in code for curved surfaces and PCX Loading.
-  Sirshane	Made several bug fixes, sent in code for making the mouse cursor invisible in Linux.
-  Matthias Gall	Sent in code for a spline scene node animator and reported lots of bugs.
-  Mario Gruber	Suggested triangle fan drawing and sent in code for this.
-  Ariaci	Spotted out a bug in the ATI driver.
-  Dr Andros C Bragianos	Improved texture mapping in cube scene node.
-  Philipp Dortmann	Sent in code for stencil buffer support for OpenGL.
-  Jerome Nichols	Created the Irrlicht/Ruby interface located at irr.rubyforge.org
-  Vash TheStampede	Sent code for missing Draw2DLine() implementations
-  MattyBoy	XBOX support suggestions
-  Oliver Klems	createImageFromData() method suggestion/implementation
-  Jox	really, really a lot of bug fixes, and the LMTS file loader
-  Zola	Quaternion method additions
-  Tomasz Nowakowski	various bug fixes
-  Nicholas Bray	stencil shadow bug fixes with OpenGL
-  REAPER	mouswheel events for scrollbar
-  Calimero	various bug fixes like vector2d operators
-  Haddock	bugfix in the linked list
-  G.o.D	XML parser fix
-  Erik Zilli	Translated some of the tutorials from my stuttering english into real english. :)
-  Martin Piskernig	Linux bugfixing and testing
-  Soconne	Wrote the original terrain renderer were Irrlichts terrain renderer of Irrlicht is based on it.
-  Spintz	GeoMipMap scene node, terrain renderer of Irrlicht is based on it.
-  Murphy McCauley	OCT file loader, MIM tools
-  Saurav Mohapatra	IrrCSM, and lots of addons, suggestions and bug reports
-  Zhuck Dimitry	My3D Tools
-  Terry Welsh	Allowed me to use the textures of his 'Parallax Mapping with Offset Limiting' paper for the parallax demo of Irrlicht
-  rt	Wrote the original .png loader for Irrlicht
-  Salvatore Russo	Wrote the original .dmf loader for Irrlicht
-  Vox	Various bug reports and fixes
-  atomice	Contributed code for a ms3d loader enhancement
-  William Finlayson	OpenGL RTT, GLSL support and the reflection 2 layer material for OpenGL.
-  Delight	Various code contributions for Irrlicht.NET (particle system, basic shader support and more)
-  Michael Zoech	Improved GLSL support
-  Jean-loup Gailly, Mark Adler	Created the zlib and libpng
-  Guy Eric Schalnat, Andreas Dilger, Glenn Randers-Pehrson and others	Created libpng
-  The Independent JPEG Group	Created JPEG lib
-  Dr Brian Gladman AES Created aesGladman
-  
+    return 0;
+}
